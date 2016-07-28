@@ -9,7 +9,8 @@
         android:id="@+id/ivBookCover"
         android:layout_marginTop="8dp"
         android:layout_width="280dp"
-        android:layout_height="280dp" />
+        android:layout_height="280dp"
+        android:layout_gravity="center_horizontal"/>
 
     <TextView
         android:id="@+id/tvTitle"
@@ -18,13 +19,45 @@
         android:textSize="32sp"
         android:layout_marginTop="8dp"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
+        android:paddingRight="10dp"
+        android:layout_gravity="center_horizontal"/>
 
     <TextView
         android:id="@+id/tvAuthor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="22sp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:id="@+id/tvPublishedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="@string/published_by"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:id="@+id/tvPublishers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:id="@+id/tvPublishYears"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"/>
 
 </LinearLayout>

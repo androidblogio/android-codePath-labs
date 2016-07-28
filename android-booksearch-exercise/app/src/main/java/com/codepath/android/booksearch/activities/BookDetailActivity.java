@@ -1,18 +1,25 @@
 package com.codepath.android.booksearch.activities;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codepath.android.booksearch.R;
+import com.codepath.android.booksearch.models.Book;
+import com.squareup.picasso.Picasso;
 
 public class BookDetailActivity extends AppCompatActivity {
     private ImageView ivBookCover;
     private TextView tvTitle;
     private TextView tvAuthor;
+    private TextView tvPublishers;
+    private TextView tvPublishYears;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,10 +29,22 @@ public class BookDetailActivity extends AppCompatActivity {
         ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
         tvTitle = (TextView) findViewById(R.id.tvTitle);
         tvAuthor = (TextView) findViewById(R.id.tvAuthor);
+        tvPublishers = (TextView) findViewById(R.id.tvPublishers);
+        tvPublishYears = (TextView) findViewById(R.id.tvPublishYears);
 
         // Extract book object from intent extras
+        Bundle b = getIntent().getExtras();
+        Book book = b.getParcelable("book");
 
         // Use book object to populate data into views
+        getSupportActionBar().setTitle(book.getTitle()); // set the top title
+
+        Picasso.with(this).load(Uri.parse(book.getCoverUrl())).placeholder(R.drawable.ic_nocover).into(ivBookCover);
+        tvTitle.setText(book.getTitle());
+        tvAuthor.setText(book.getAuthor());
+        tvPublishers.setText(book.getPublisher());
+        tvPublishYears.setText(book.getPublishYear());
+
     }
 
 

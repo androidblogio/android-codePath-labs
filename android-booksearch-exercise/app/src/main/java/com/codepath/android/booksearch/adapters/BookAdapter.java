@@ -1,6 +1,7 @@
 package com.codepath.android.booksearch.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codepath.android.booksearch.R;
+import com.codepath.android.booksearch.activities.BookDetailActivity;
 import com.codepath.android.booksearch.models.Book;
 import com.squareup.picasso.Picasso;
 
@@ -43,6 +45,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
             viewHolder.tvTitle = (TextView)convertView.findViewById(R.id.tvTitle);
             viewHolder.tvAuthor = (TextView)convertView.findViewById(R.id.tvAuthor);
             convertView.setTag(viewHolder);
+
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
@@ -50,6 +53,18 @@ public class BookAdapter extends ArrayAdapter<Book> {
         viewHolder.tvTitle.setText(book.getTitle());
         viewHolder.tvAuthor.setText(book.getAuthor());
         Picasso.with(getContext()).load(Uri.parse(book.getCoverUrl())).placeholder(R.drawable.ic_nocover).into(viewHolder.ivCover);
+
+        //Set click listener to show detailActivity
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(getContext(), BookDetailActivity.class);
+                i.putExtra("book", book);
+                getContext().startActivity(i);
+            }
+        });
+
         // Return the completed view to render on screen
         return convertView;
     }
