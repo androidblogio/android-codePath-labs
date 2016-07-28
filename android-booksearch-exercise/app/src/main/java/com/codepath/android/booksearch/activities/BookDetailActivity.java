@@ -1,18 +1,31 @@
 package com.codepath.android.booksearch.activities;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codepath.android.booksearch.R;
 import com.codepath.android.booksearch.models.Book;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class BookDetailActivity extends AppCompatActivity {
     private ImageView ivBookCover;
@@ -20,6 +33,8 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView tvAuthor;
     private TextView tvPublishers;
     private TextView tvPublishYears;
+    private ShareActionProvider miShareAction;
+    private Intent shareIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +49,23 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // Extract book object from intent extras
         Bundle b = getIntent().getExtras();
-        Book book = b.getParcelable("book");
+        final Book book = b.getParcelable("book");
 
         // Use book object to populate data into views
         getSupportActionBar().setTitle(book.getTitle()); // set the top title
 
-        Picasso.with(this).load(Uri.parse(book.getCoverUrl())).placeholder(R.drawable.ic_nocover).into(ivBookCover);
+        Picasso.with(this).load(Uri.parse(book.getCoverUrl())).placeholder(R.drawable.ic_nocover).into(ivBookCover, new Callback() {
+            @Override
+            public void onSuccess() {
+                prepareShareIntent(book.getTitle());
+                attachShareIntentAction();
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
         tvTitle.setText(book.getTitle());
         tvAuthor.setText(book.getAuthor());
         tvPublishers.setText(book.getPublisher());
@@ -52,7 +78,14 @@ public class BookDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_book_detail, menu);
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+        // Fetch reference to the share action provider
+        miShareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        attachShareIntentAction(); // call here in case this method fires second
+        // Return true to display menu
         return true;
+
     }
 
     @Override
@@ -69,4 +102,54 @@ public class BookDetailActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    // Gets the image URI and setup the associated share intent to hook into the provider
+    public void prepareShareIntent(String title) {
+        // Fetch Bitmap Uri locally
+        ImageView ivImage = (ImageView) findViewById(R.id.ivBookCover);
+        Uri bmpUri = getLocalBitmapUri(ivImage); // see previous remote images section
+        // Construct share intent as described above based on bitmap
+        shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, title);
+        shareIntent.setType("image/*");
+    }
+
+
+    // Attaches the share intent to the share menu item provider
+    public void attachShareIntentAction() {
+        if (miShareAction != null && shareIntent != null)
+            miShareAction.setShareIntent(shareIntent);
+    }
+
+
+    // Returns the URI path to the Bitmap displayed in specified ImageView
+    public Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp = null;
+        if (drawable instanceof BitmapDrawable){
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            // Use methods on Context to access package-specific directories on external storage.
+            // This way, you don't need to request external read/write permission.
+            // See https://youtu.be/5xVh-7ywKpE?t=25m25s
+            File file =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
+    }
+
+
 }
